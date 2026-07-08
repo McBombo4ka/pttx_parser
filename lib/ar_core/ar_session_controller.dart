@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:arcore_flutter_plus/arcore_flutter_plus.dart';
-import 'package:arcore_flutter_plus/arcore_flutter_plus.dart' as arCoreController;
+import 'package:arcore_flutter_plus/arcore_flutter_plus.dart'
+    as arCoreController;
 import 'package:vector_math/vector_math_64.dart' as vector;
 
 import 'model_source.dart';
@@ -31,12 +32,15 @@ class ArSessionController {
   Timer? _poseTimer;
   bool get isReady => _arcoreController != null && !_disposed;
   bool get isModelPlaced => _modelPlaced;
-  
+
+  void Function(vector.Vector3 position, vector.Vector4 rotation)?
+  onCameraPoseChanged;
+
   void Function()? onStateChanged;
   Future<void> updateCameraPose() async {
     arCoreController.onCameraPositionUpdate = (pose) {
-   print("Координаты смартфона обновились сами: ${pose['translation']}");
-};
+      print("Координаты смартфона обновились сами: ${pose['translation']}");
+    };
     if (_disposed || _arcoreController == null) return;
 
     final pose = await _arcoreController!.getCameraPose();
@@ -58,6 +62,8 @@ class ArSessionController {
       rotation[2],
       rotation[3],
     );
+
+    onCameraPoseChanged?.call(cameraPosition!, cameraRotation!);
 
     onStateChanged?.call();
   }

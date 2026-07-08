@@ -127,6 +127,17 @@ class PresentationWebServer extends ChangeNotifier {
     notifyListeners();
   }
 
+  void broadcastCameraPose({
+    required List<double> translation,
+    required List<double> rotation,
+  }) {
+    _broadcast({
+      'type': 'camera_pose',
+      'translation': translation,
+      'rotation': rotation,
+    });
+  }
+
   /// Возвращает браузер к презентации.
   void stopArMode() {
     _arModel = null;
@@ -535,6 +546,7 @@ controls.minDistance    = 0.3;
 controls.maxDistance    = 20;
 
 let model3d = null;
+let arCameraControlled = false;
 const loader = new GLTFLoader();
 
 function fitCameraToModel(object) {
@@ -579,8 +591,11 @@ function startLoop() {
   if (animId) return;
   function tick() {
     animId = requestAnimationFrame(tick);
+    if (!arCameraControlled) {
     controls.update();
-    renderer.render(scene, camera);
+}
+
+renderer.render(scene, camera);
   }
   tick();
 }
@@ -598,12 +613,38 @@ window._arShow = function(modelUrl, modelName) {
 };
 
 window._arHide = function() {
+arCameraControlled = false;
+controls.enabled = true;
+controls.autoRotate = true;
   overlay.classList.remove('active');
   stopLoop();
 };
 
 // ── Интеграция с WebSocket (основной скрипт ниже) ────────────────────────
 window._onWsMessage = function(msg) {
+  function updateCameraPose(translation, rotation) {
+
+    arCameraControlled = true;
+
+    controls.enabled = false;
+    controls.autoRotate = false;
+
+    camera.position.set(
+        translation[0],
+        translation[1],
+        translation[2]
+    );
+
+    camera.quaternion.set(
+        rotation[0],
+        rotation[1],
+        rotation[2],
+        rotation[3]
+    );
+
+    camera.updateMatrixWorld(true);
+}
+
   if (msg.type === 'ar_start') {
     window._arShow(msg.modelUrl, msg.modelName);
   } else if (msg.type === 'ar_stop') {
@@ -612,7 +653,12 @@ window._onWsMessage = function(msg) {
     window._arShow(msg.modelUrl, msg.modelName);
   } else if (msg.type === 'state' && !msg.arActive) {
     window._arHide();
-  }
+  } else if (msg.type === "camera_pose") {
+    updateCameraPose(
+        msg.translation,
+        msg.rotation
+    );
+}
 };
 </script>
 

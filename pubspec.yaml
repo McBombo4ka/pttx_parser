@@ -18,11 +18,10 @@ dependencies:
   path_provider: ^2.1.4
   file_saver: ^0.4.0
   permission_handler: ^12.0.1
-  external_path: ^2.2.0
   share_plus: ^12.0.2
   file_picker: ^11.0.2
   arcore_flutter_plus:
-    path: /media/mcbombo4ka/6068D08668D05BFA/arcore_flutter_plus-1.0.2
+    path: modified/arcore_flutter_plus-1.0.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

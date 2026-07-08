@@ -102,7 +102,10 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
                   child: SizedBox(
                     width: _presentation!.slideSize.widthPx,
                     height: _presentation!.slideSize.heightPx,
-                    child: SlideCanvas(slide: slide, theme: _presentation!.theme),
+                    child: SlideCanvas(
+                      slide: slide,
+                      theme: _presentation!.theme,
+                    ),
                   ),
                 ),
               ),
@@ -131,9 +134,11 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
             tooltip: 'Редактировать слайд',
             onPressed: _presentation == null
                 ? null
-                : () => Navigator.of(context).push(MaterialPageRoute(
+                : () => Navigator.of(context).push(
+                    MaterialPageRoute(
                       builder: (_) => EditScreen(initialSlideIndex: _index),
-                    )),
+                    ),
+                  ),
           ),
           Text('${_index + 1} / $total'),
           IconButton(
@@ -143,7 +148,9 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
                   ? Theme.of(context).colorScheme.primary
                   : null,
             ),
-            tooltip: attachedModel != null ? 'Изменить AR-модель' : 'Прикрепить AR-модель',
+            tooltip: attachedModel != null
+                ? 'Изменить AR-модель'
+                : 'Прикрепить AR-модель',
             onPressed: _openArModelPicker,
           ),
           // Кнопка AR — открывает камеру на телефоне и 3D-модель в браузере.
@@ -157,7 +164,9 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
             tooltip: attachedModel == null
                 ? 'Сначала прикрепите 3D-модель'
                 : 'Показать: ${attachedModel.displayName}',
-            onPressed: attachedModel != null ? () => _openArView(attachedModel) : null,
+            onPressed: attachedModel != null
+                ? () => _openArView(attachedModel)
+                : null,
           ),
           IconButton(
             icon: const Icon(Icons.code),
@@ -187,10 +196,14 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
     );
     if (result == null || !mounted) return;
     await _arRepository.attachModel(_index, result);
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text('Модель «${result.displayName}» прикреплена к слайду ${_index + 1}.'),
-      duration: const Duration(seconds: 3),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Модель «${result.displayName}» прикреплена к слайду ${_index + 1}.',
+        ),
+        duration: const Duration(seconds: 3),
+      ),
+    );
   }
 
   /// Открывает AR на телефоне и уведомляет браузер.
@@ -200,7 +213,18 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
     widget.webServer.startArMode(model);
 
     await Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => ArViewScreen(modelSource: model)),
+      MaterialPageRoute(
+        builder: (_) => ArViewScreen(
+          modelSource: model,
+
+          onCameraPose: (position, rotation) {
+            widget.webServer.broadcastCameraPose(
+              translation: [position.x, position.y, position.z],
+              rotation: [rotation.x, rotation.y, rotation.z, rotation.w],
+            );
+          },
+        ),
+      ),
     );
 
     // Пользователь вернулся с AR-экрана — возвращаем браузер к презентации.
@@ -213,9 +237,9 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
     try {
       await DownloadsSaver.saveHtml(fileName: 'presentation.html', html: html);
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Сохранено в Downloads')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Сохранено в Downloads')));
     } catch (e) {
       debugPrint('EXPORT ERROR: $e');
     }

@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 
 import 'ar_session_controller.dart';
 import 'model_source.dart';
+import 'package:vector_math/vector_math_64.dart' as vector;
 
 class ArViewScreen extends StatefulWidget {
   final ModelSource modelSource;
-
-  const ArViewScreen({super.key, required this.modelSource});
+    final void Function(
+  vector.Vector3 position,
+  vector.Vector4 rotation,
+)? onCameraPose;
+  const ArViewScreen({super.key, required this.modelSource, this.onCameraPose});
 
   @override
   State<ArViewScreen> createState() => _ArViewScreenState();
@@ -35,6 +39,7 @@ class _ArViewScreenState extends State<ArViewScreen>
   void _createSession() {
     final ctrl = ArSessionController();
     ctrl.onStateChanged = _refresh;
+    ctrl.onCameraPoseChanged = widget.onCameraPose;
     _sessionController = ctrl;
   }
 
