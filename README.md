@@ -20,6 +20,7 @@
 - flutter run
 
 ## Структура проекта
+'''text
 └── lib/
     ├── app/
     │   └── app.dart
@@ -59,3 +60,4 @@
     ├── main.dart
     └── theme/
         └── theme.dart
+'''
