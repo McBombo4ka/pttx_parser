@@ -51,14 +51,14 @@ class SlideCanvas extends StatelessWidget {
 
   Widget _buildShape(SlideShape shape) {
     final r = shape.bounds.rect;
-    debugPrint('SHAPE TYPE: ${shape.runtimeType}');
+    // debugPrint('SHAPE TYPE: ${shape.runtimeType}');
     // debugPrint('SHAPE: ${shape.toString()}');
     if (shape is TextShape) {
-      debugPrint(
-        'TEXT SHAPE: ${shape.geometry}, '
-        'fill=${shape.fill.runtimeType}, '
-        'outline=${shape.outline.runtimeType}',
-      );
+      // debugPrint(
+      //   'TEXT SHAPE: ${shape.geometry}, '
+      //   'fill=${shape.fill.runtimeType}, '
+      //   'outline=${shape.outline.runtimeType}',
+      // );
       return Positioned(
         left: r.left,
         top: r.top,

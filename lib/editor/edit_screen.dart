@@ -62,10 +62,7 @@ class _EditScreenState extends State<EditScreen> {
                     separatorBuilder: (_, __) => const SizedBox(height: 8),
                     itemBuilder: (context, i) {
                       final shape = slide.editableShapes[i];
-                      return _ShapeCard(
-                        shape: shape,
-                        slideIndex: _slideIndex,
-                      );
+                      return _ShapeCard(shape: shape, slideIndex: _slideIndex);
                     },
                   ),
           ),
@@ -110,17 +107,26 @@ class _SlideNavigator extends StatelessWidget {
                       duration: const Duration(milliseconds: 150),
                       margin: const EdgeInsets.symmetric(horizontal: 4),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: active
-                            ? Theme.of(context).colorScheme.primary
-                            : Colors.grey.shade200,
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.inversePrimary
+                            : Theme.of(
+                                context,
+                              ).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outlineVariant,
+                          width: 1,
+                        ),
                       ),
                       child: Text(
                         '${i + 1}',
                         style: TextStyle(
-                          color: active ? Colors.white : Colors.black87,
                           fontWeight: active
                               ? FontWeight.bold
                               : FontWeight.normal,
@@ -134,8 +140,9 @@ class _SlideNavigator extends StatelessWidget {
           ),
           IconButton(
             icon: const Icon(Icons.chevron_right),
-            onPressed:
-                current < total - 1 ? () => onChanged(current + 1) : null,
+            onPressed: current < total - 1
+                ? () => onChanged(current + 1)
+                : null,
           ),
         ],
       ),
@@ -163,8 +170,7 @@ class _ShapeCard extends StatelessWidget {
         side: BorderSide(color: Colors.grey.shade300),
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: CircleAvatar(
           backgroundColor: Colors.blue.shade50,
           child: const Icon(Icons.text_fields, color: Colors.blue, size: 20),
@@ -174,21 +180,18 @@ class _ShapeCard extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
-            color: isEmpty ? Colors.grey : Colors.black87,
             fontStyle: isEmpty ? FontStyle.italic : FontStyle.normal,
           ),
         ),
         subtitle: Text(
           'ID: ${shape.shapeId}',
-          style: const TextStyle(fontSize: 11, color: Colors.grey),
+          style: const TextStyle(fontSize: 11),
         ),
-        trailing: const Icon(Icons.edit_outlined, color: Colors.grey),
+        trailing: const Icon(Icons.edit_outlined),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => ShapeEditScreen(
-              slideIndex: slideIndex,
-              shape: shape,
-            ),
+            builder: (_) =>
+                ShapeEditScreen(slideIndex: slideIndex, shape: shape),
           ),
         ),
       ),

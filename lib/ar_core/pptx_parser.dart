@@ -26,18 +26,6 @@ extension XmlElementSearch on XmlElement {
     }
     return null;
   }
-
-  /// Ищет первый элемент вглубь всего дерева (используй явно, когда нужно).
-  XmlElement? findDeepElement(String localName) {
-    final name = localName.split(':').last;
-    try {
-      return descendants.whereType<XmlElement>().firstWhere(
-        (e) => e.localName == name,
-      );
-    } catch (_) {
-      return null;
-    }
-  }
 }
 
 extension XmlDocumentSearch on XmlDocument {
@@ -192,11 +180,8 @@ class _PptxParserImpl {
     for (final file in _archive.files) {
       if (file.isFile && file.name.startsWith('ppt/media/')) {
         final content = file.content;
-        if (content is Uint8List) {
-          _mediaCache[file.name] = content;
-        } else if (content is List<int>) {
-          _mediaCache[file.name] = Uint8List.fromList(content);
-        }
+
+        _mediaCache[file.name] = content;
       }
     }
   }
@@ -215,13 +200,7 @@ class _PptxParserImpl {
     }
 
     final content = file.content;
-    final bytes = content is Uint8List
-        ? content
-        : content is List<int>
-        ? Uint8List.fromList(content)
-        : throw StateError('Unsupported XML content type for $path');
-
-    final doc = XmlDocument.parse(utf8.decode(bytes));
+    final doc = XmlDocument.parse(utf8.decode(content));
     _xmlCache[path] = doc;
     return doc;
   }
@@ -647,7 +626,7 @@ class _PptxParserImpl {
     // ─────────────────────────────────────────────
     // TEXT SHAPE
     // ─────────────────────────────────────────────
-    final paragraphs = _parseTxBody(txBody!, ctx.theme);
+    final paragraphs = _parseTxBody(txBody, ctx.theme);
 
     return TextShape(
       shapeId: shapeId,
@@ -1131,9 +1110,7 @@ class _PptxParserImpl {
     if (schemeClr != null) {
       final val = schemeClr.getAttribute('val') ?? '';
       var color = theme.resolveSchemeColor(val);
-      if (color == null) {
-        color = _namedColor(val);
-      }
+      color ??= _namedColor(val);
       color = _applyColorMods(schemeClr, color);
       return color;
     }

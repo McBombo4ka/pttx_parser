@@ -35,8 +35,8 @@ class EditableRun {
 class EditableShape {
   final String shapeId;
   ShapeBounds bounds;
-  // Только TextShape редактируется — остальные пока readonly
-  final List<List<EditableRun>> paragraphRuns; // [paragraph][run]
+  // Только TextShape редактируется
+  final List<List<EditableRun>> paragraphRuns; 
 
   EditableShape({
     required this.shapeId,

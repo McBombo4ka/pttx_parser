@@ -975,8 +975,9 @@ $content
     final f = run.format;
     final parts = <String>[];
     if (f.fontFamily != null) parts.add('font-family:${f.fontFamily}');
-    if (f.fontSizePx != null)
+    if (f.fontSizePx != null) {
       parts.add('font-size:${f.fontSizePx!.toStringAsFixed(1)}px');
+    }
     if (f.color != null) parts.add('color:#${_colorToHex(f.color!)}');
     if (f.bold) parts.add('font-weight:bold');
     if (f.italic) parts.add('font-style:italic');
@@ -995,8 +996,9 @@ $content
   String _runStyle(EditableRun run) {
     final parts = <String>[];
     if (run.color != null) parts.add('color:#${_colorToHex(run.color!)}');
-    if (run.fontSizePx != null)
+    if (run.fontSizePx != null) {
       parts.add('font-size:${run.fontSizePx!.toStringAsFixed(1)}px');
+    }
     if (run.bold) parts.add('font-weight:bold');
     if (run.italic) parts.add('font-style:italic');
     return parts.join(';');
@@ -1010,7 +1012,7 @@ $content
       final stops = fill.stops
           .map((s) {
             final pct = (s.position * 100).clamp(0, 100).toStringAsFixed(2);
-            return '#${_colorToHex(s.color)} ${pct}%';
+            return '#${_colorToHex(s.color)} $pct%';
           })
           .join(',');
       return 'background:linear-gradient(${fill.angle}deg,$stops);';
@@ -1019,8 +1021,9 @@ $content
   }
 
   String _shapeOutlineCss(ShapeOutline? outline) {
-    if (outline == null || outline.style == OutlineStyle.none)
+    if (outline == null || outline.style == OutlineStyle.none) {
       return 'border:none;';
+    }
     return 'border:${outline.widthPx.toStringAsFixed(1)}px solid '
         '#${_colorToHex(outline.color)};';
   }
@@ -1078,7 +1081,7 @@ $content
       final stops = bg.stops
           .map((s) {
             final pct = (s.position * 100).clamp(0, 100).toStringAsFixed(2);
-            return '#${_colorToHex(s.color)} ${pct}%';
+            return '#${_colorToHex(s.color)} $pct%';
           })
           .join(',');
       return 'background:linear-gradient(${bg.angle}deg,$stops);';
@@ -1120,8 +1123,9 @@ $content
         bytes[4] == 0x0D &&
         bytes[5] == 0x0A &&
         bytes[6] == 0x1A &&
-        bytes[7] == 0x0A)
+        bytes[7] == 0x0A) {
       return 'image/png';
+    }
 
     if (bytes.length >= 3 &&
         bytes[0] == 0xFF &&
@@ -1135,8 +1139,9 @@ $content
         bytes[1] == 0x49 &&
         bytes[2] == 0x46 &&
         bytes[3] == 0x38 &&
-        bytes[5] == 0x61)
+        bytes[5] == 0x61) {
       return 'image/gif';
+    }
 
     if (bytes.length >= 12 &&
         bytes[0] == 0x52 &&
@@ -1146,14 +1151,15 @@ $content
         bytes[8] == 0x57 &&
         bytes[9] == 0x45 &&
         bytes[10] == 0x42 &&
-        bytes[11] == 0x50)
+        bytes[11] == 0x50) {
       return 'image/webp';
+    }
 
     return 'image/png';
   }
 
   String _colorToHex(Color color) =>
-      color.value.toRadixString(16).padLeft(8, '0').substring(2);
+      color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2);
 
   String _escapeHtml(String text) => text
       .replaceAll('&', '&amp;')

@@ -2,16 +2,28 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pptx_parsing/core/storage/store_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../core/network/presentation_web_server.dart';
 import '../editor/edit_models.dart';
 import '../features/pptx_viewer/pages/pptx_viewer_page.dart';
 import '../ar_core/pptx_parser.dart';
+import '../theme/theme.dart';
+
+extension ThemeModeString on String {
+  ThemeMode toThemeMode() {
+    try {
+      return ThemeMode.values.byName(replaceFirst('ThemeMode.', ''));
+    } catch (_) {
+      return ThemeMode.system;
+    }
+  }
+}
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
+  const MyApp({super.key, required this.themeNotifier});
+  final ValueNotifier<ThemeMode> themeNotifier;
   @override
   State<MyApp> createState() => _MyAppState();
 }
@@ -21,7 +33,6 @@ class _MyAppState extends State<MyApp> {
   PresentationWebServer? _webServer;
   String? _serverUrl;
   bool loading = true;
-
   @override
   void initState() {
     super.initState();
@@ -55,9 +66,19 @@ class _MyAppState extends State<MyApp> {
 
     return ChangeNotifierProvider.value(
       value: editModel!,
-      child: MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home: PptxViewerPage(webServer: _webServer!),
+      child: ValueListenableBuilder<ThemeMode>(
+        valueListenable: widget.themeNotifier,
+        builder: (context, currentThemeMode, child) {
+          return MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: currentThemeMode,
+            home: ThemeModeInheritedWidget(
+              themeNotifier: widget.themeNotifier,
+              child: PptxViewerPage(webServer: _webServer!)),
+          );
+        },
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pptx_parsing/core/storage/store_theme.dart';
 import 'package:provider/provider.dart';
 
 import '../../../ar_core/ar_model_repository.dart';
@@ -86,33 +87,81 @@ class _PptxViewerPageState extends State<PptxViewerPage> {
     }
 
     final slide = _presentation!.slides[_index];
-
+    final themeModeInherited = ThemeModeInheritedWidget.of(
+      context,
+    ).themeNotifier;
     return ListenableBuilder(
       listenable: _arRepository,
       builder: (context, _) => Scaffold(
-        backgroundColor: Colors.white,
         body: SafeArea(
-          child: Center(
-            child: AspectRatio(
-              aspectRatio: _presentation!.slideSize.aspectRatio,
-              child: GestureDetector(
-                onHorizontalDragEnd: _onHorizontalSwipe,
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: SizedBox(
-                    width: _presentation!.slideSize.widthPx,
-                    height: _presentation!.slideSize.heightPx,
-                    child: SlideCanvas(
-                      slide: slide,
-                      theme: _presentation!.theme,
+          child: Stack(
+            children: [
+              Center(
+                child: AspectRatio(
+                  aspectRatio: _presentation!.slideSize.aspectRatio,
+                  child: GestureDetector(
+                    onHorizontalDragEnd: _onHorizontalSwipe,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: SizedBox(
+                        width: _presentation!.slideSize.widthPx,
+                        height: _presentation!.slideSize.heightPx,
+                        child: SlideCanvas(
+                          slide: slide,
+                          theme: _presentation!.theme,
+                        ),
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.circle,
+                        size: 16,
+                        color: widget.webServer.accessUri == null
+                            ? Colors.red
+                            : Colors.green,
+                      ),
+                      SizedBox(width: 8,),
+                      Text(
+                        widget.webServer.accessUri == null
+                            ? 'Сервер не запущен'
+                            : '${widget.webServer.accessUri!.host}:${widget.webServer.accessUri!.port}',
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
         bottomNavigationBar: _buildControls(),
+        floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          onPressed: () async {
+            themeModeInherited.value =
+                themeModeInherited.value == ThemeMode.dark
+                ? ThemeMode.light
+                : ThemeMode.dark;
+            await saveThemeToJson(themeModeInherited);
+          },
+          child: themeModeInherited.value == ThemeMode.dark
+              ? Icon(Icons.dark_mode)
+              : Icon(Icons.light_mode),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
       ),
     );
   }
