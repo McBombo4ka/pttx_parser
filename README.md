@@ -15,9 +15,9 @@
 - archive, equatable, http, xml, path_provider, file_saver, permission_handler, share_plus, Provider, arcore_flutter_plus(modified), file_picker
 
 ## Установка
-git clone https://github.com/McBombo4ka/pttx_parser.git
-flutter pub get
-flutter run
+- git clone https://github.com/McBombo4ka/pttx_parser.git
+- flutter pub get
+- flutter run
 
 ## Структура проекта
 └── lib/
